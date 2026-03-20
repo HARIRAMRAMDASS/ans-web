@@ -4,7 +4,7 @@ import { Bot, Navigation, Activity, XCircle, RotateCcw, Play } from 'lucide-reac
 import MapComponent from './MapComponent';
 import './index.css';
 
-const SERVER_URL = "http://localhost:5000";
+const SERVER_URL = "https://nonportentous-kellen-noncoherently.ngrok-free.dev";
 
 function App() {
   const [startNode, setStartNode] = useState(null);
@@ -80,37 +80,32 @@ function App() {
   }, []);
 
   const handleStartRobot = async () => {
-    if (!startNode || !destNode) {
-      alert("Please select a valid destination and ensure start location is detected.");
-      return;
-    }
-    
     try {
-      const res = await axios.post(`${SERVER_URL}/start-navigation`, {
-        start: startNode,
-        destination: destNode
+      const res = await fetch(`${SERVER_URL}/start`, {
+        method: "POST"
       });
-      setPath(res.data.path);
-    } catch(err) {
-      console.error("Failed to start navigation:", err);
-      alert("Failed to connect to backend server or compute route.");
+      const data = await res.json();
+      console.log(data);
+      alert("✅ Robot Started Successfully!");
+      setRobotState(prev => ({ ...prev, status: 'Moving', move: true }));
+    } catch (err) {
+      console.error("Connection failed", err);
+      alert("❌ Cannot connect to Raspberry Pi!");
     }
   };
 
   const handleReset = async () => {
-    setDestNode(null);
-    setPath([]);
-    
     try {
-      await axios.post(`${SERVER_URL}/reset`);
-      // re-fetch location if we want to snap back to start node
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((pos) => {
-          setStartNode({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        });
-      }
-    } catch(err) {
-      console.error("Failed to reset backend:", err);
+      await fetch(`${SERVER_URL}/stop`, {
+        method: "POST"
+      });
+      alert("🛑 Robot Stopped Successfully!");
+      setDestNode(null);
+      setPath([]);
+      setRobotState(prev => ({ ...prev, status: 'Stopped', move: false }));
+    } catch (err) {
+      console.error("Stop failed", err);
+      alert("❌ Cannot connect to Raspberry Pi!");
     }
   };
 

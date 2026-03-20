@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Navigation Robot</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #1e293b;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid #334155;
+        }
+
+        h1 {
+            color: #38bdf8;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        button {
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        #start-btn {
+            background-color: #22c55e;
+            color: white;
+        }
+
+        #start-btn:hover {
+            background-color: #16a34a;
+            transform: translateY(-2px);
+        }
+
+        #stop-btn {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        #stop-btn:hover {
+            background-color: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .status-msg {
+            margin-top: 1.5rem;
+            padding: 0.5rem;
+            border-radius: 0.4rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Advanced Navigation Robot</h1>
+        
+        <div class="btn-group">
+            <button id="start-btn" onclick="sendCommand('start')">START ROBOT</button>
+            <button id="stop-btn" onclick="sendCommand('stop')">STOP ROBOT</button>
+        </div>
+
+        <div id="status-msg" class="status-msg">System Idle</div>
+    </div>
+
+    <script>
+        // STRICT RULE: ALWAYS USE THIS SERVER URL
+        const SERVER_URL = "https://nonportentous-kellen-noncoherently.ngrok-free.dev";
+        const statusEl = document.getElementById('status-msg');
+
+        async function sendCommand(action) {
+            try {
+                console.log(`Sending command: ${action}...`);
+                statusEl.innerText = `Connecting to robot... (${action})`;
+
+                // Using fetch() with async/await as requested
+                const response = await fetch(`${SERVER_URL}/${action}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("Response from server:", data);
+                
+                // Show alert logic as requested
+                if (data.status === 'started') {
+                    alert("✅ Robot Started Successfully!");
+                    statusEl.innerText = "Robot Status: RUNNING";
+                    statusEl.style.color = "#22c55e";
+                } else if (data.status === 'stopped') {
+                    alert("🛑 Robot Stopped Successfully!");
+                    statusEl.innerText = "Robot Status: STOPPED";
+                    statusEl.style.color = "#ef4444";
+                }
+
+            } catch (error) {
+                console.error("Connection Error:", error);
+                
+                // REQUIRED: Handle errors
+                alert("❌ Cannot connect to Raspberry Pi! Check if ngrok is active.");
+                statusEl.innerText = "Error: Cannot connect to Raspberry Pi";
+                statusEl.style.color = "#ef4444";
+            }
+        }
+    </script>
+</body>
+</html>
