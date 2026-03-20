@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autonomous Robot Control Panel</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Map Container -->
+        <div id="map"></div>
+        
+        <!-- UI Overlay Panels -->
+        <div class="panel-group left-panels">
+            <!-- Navigation Control Panel -->
+            <div class="panel nav-panel">
+                <div class="panel-header">
+                    <h2>Navigation Control</h2>
+                </div>
+                <div class="panel-body">
+                    <p class="instruction">Click on map to select Start and Destination.</p>
+                    <div class="coord-box">
+                        <h3>Start Location</h3>
+                        <p id="start-coords">Not selected</p>
+                        <button id="clear-start" class="btn btn-secondary btn-sm" disabled>Clear</button>
+                    </div>
+                    <div class="coord-box">
+                        <h3>Destination</h3>
+                        <p id="dest-coords">Not selected</p>
+                        <button id="clear-dest" class="btn btn-secondary btn-sm" disabled>Clear</button>
+                    </div>
+                    <button id="start-nav-btn" class="btn btn-primary btn-block" disabled>Start Navigation</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-group right-panels">
+            <!-- Robot Monitoring Dashboard -->
+            <div class="panel status-panel">
+                <div class="panel-header">
+                    <h2>System Status</h2>
+                </div>
+                <div class="panel-body">
+                    <div class="status-item">
+                        <span class="status-label">Connection</span>
+                        <span id="conn-status" class="status-value disconnected">Disconnected</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Robot Status</span>
+                        <span id="robot-status" class="status-value">Idle</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Navigation</span>
+                        <span id="nav-status" class="status-value">Pending</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Current Coords</span>
+                        <span id="current-coords" class="status-value coords-value">N/A</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="script.js"></script>
+</body>
+</html>
