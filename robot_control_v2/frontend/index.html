@@ -90,56 +90,74 @@
         <h1>Advanced Navigation Robot</h1>
         
         <div class="btn-group">
-            <button id="start-btn" onclick="sendCommand('start')">START ROBOT</button>
-            <button id="stop-btn" onclick="sendCommand('stop')">STOP ROBOT</button>
+            <button id="start-btn" onclick="startRobot()">START ROBOT</button>
+            <button id="stop-btn" onclick="stopRobot()">STOP ROBOT</button>
         </div>
 
-        <div id="status-msg" class="status-msg">System Idle</div>
+        <div class="status-msg" id="status-msg">System Idle</div>
+
+        <!-- Video element for streaming -->
+        <div style="margin-top: 2rem;">
+            <img id="video" width="400" style="border-radius: 0.5rem; background-color: #000; box-shadow: 0 4px 10px rgba(0,0,0,0.3);" />
+        </div>
     </div>
 
     <script>
-        // STRICT RULE: ALWAYS USE THIS SERVER URL
         const SERVER_URL = "https://nonportentous-kellen-noncoherently.ngrok-free.dev";
         const statusEl = document.getElementById('status-msg');
+        const videoEl = document.getElementById('video');
 
-        async function sendCommand(action) {
+        async function startRobot() {
             try {
-                console.log(`Sending command: ${action}...`);
-                statusEl.innerText = `Connecting to robot... (${action})`;
+                console.log("Starting robot...");
+                statusEl.innerText = "Connecting to robot... (start)";
 
-                // Using fetch() with async/await as requested
-                const response = await fetch(`${SERVER_URL}/${action}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                const response = await fetch(SERVER_URL + "/start", {
+                    method: "POST"
                 });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error("Connection failed");
 
                 const data = await response.json();
-                console.log("Response from server:", data);
                 
-                // Show alert logic as requested
                 if (data.status === 'started') {
                     alert("✅ Robot Started Successfully!");
                     statusEl.innerText = "Robot Status: RUNNING";
                     statusEl.style.color = "#22c55e";
-                } else if (data.status === 'stopped') {
+                    
+                    // Start live video stream
+                    videoEl.src = SERVER_URL + "/video_feed";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("❌ Cannot connect to Raspberry Pi!");
+            }
+        }
+
+        async function stopRobot() {
+            try {
+                console.log("Stopping robot...");
+                statusEl.innerText = "Connecting to robot... (stop)";
+
+                const response = await fetch(SERVER_URL + "/stop", {
+                    method: "POST"
+                });
+
+                if (!response.ok) throw new Error("Connection failed");
+
+                const data = await response.json();
+
+                if (data.status === 'stopped') {
                     alert("🛑 Robot Stopped Successfully!");
                     statusEl.innerText = "Robot Status: STOPPED";
                     statusEl.style.color = "#ef4444";
+                    
+                    // Stop video stream
+                    videoEl.src = "";
                 }
-
             } catch (error) {
-                console.error("Connection Error:", error);
-                
-                // REQUIRED: Handle errors
-                alert("❌ Cannot connect to Raspberry Pi! Check if ngrok is active.");
-                statusEl.innerText = "Error: Cannot connect to Raspberry Pi";
-                statusEl.style.color = "#ef4444";
+                console.error("Error:", error);
+                alert("❌ Cannot connect to Raspberry Pi!");
             }
         }
     </script>

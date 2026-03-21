@@ -1,9 +1,39 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, Response
+import cv2
+
 from flask_cors import CORS
 
 app = Flask(__name__)
 # Enable CORS for all routes (CRITICAL for frontend to connect)
 CORS(app)
+
+# Existing camera/capture logic
+camera = cv2.VideoCapture(0)
+
+def capture_frame():
+    success, frame = camera.read()
+    if not success:
+        return None
+    return frame
+
+def generate_frames():
+    while True:
+        frame = capture_frame()
+
+        if frame is None:
+            continue
+
+        _, buffer = cv2.imencode('.jpg', frame)
+        frame_bytes = buffer.tobytes()
+
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
 
 @app.route('/start', methods=['POST'])
 def start_robot():
